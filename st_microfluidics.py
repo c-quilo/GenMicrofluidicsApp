@@ -1,6 +1,5 @@
 # First, import necessary libraries
 import streamlit as st
-import pandas as pd
 import numpy as np
 import scipy.io
 import matplotlib.pyplot as plt
