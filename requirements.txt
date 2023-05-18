@@ -2,6 +2,5 @@ seaborn
 matplotlib
 tensorflow
 streamlit
-pip
 time
 random
