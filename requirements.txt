@@ -2,7 +2,7 @@ seaborn
 matplotlib
 tensorflow
 streamlit
-scipy==1.10.1
+pip
+scipy
 time
 random
-pip
