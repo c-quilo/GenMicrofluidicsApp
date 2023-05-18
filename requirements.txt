@@ -1,0 +1,9 @@
+seaborn
+matplotlib
+tensorflow
+streamlit
+scipy
+numpy
+pandas
+time
+random
