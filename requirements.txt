@@ -3,6 +3,5 @@ matplotlib
 tensorflow
 streamlit
 pip
-scipy
 time
 random
