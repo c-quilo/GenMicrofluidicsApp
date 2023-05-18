@@ -4,6 +4,5 @@ tensorflow
 streamlit
 scipy
 numpy
-pandas
 time
 random

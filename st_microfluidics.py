@@ -7,6 +7,7 @@ import tensorflow as tf
 from tensorflow import keras
 from VarAE import VAE, encoder, decoder
 from plotting import plot_latent_space
+
 st.set_page_config(
     page_title = 'PREMIERE CS3',
     page_icon = ':microscope::droplet:',
