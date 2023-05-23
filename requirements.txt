@@ -1,7 +1,5 @@
 seaborn
 matplotlib
 tensorflow
-pip==23.1.2
-streamlit
 time
 random
