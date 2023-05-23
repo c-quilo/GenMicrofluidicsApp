@@ -10,7 +10,7 @@ from plotting import plot_latent_space
 
 st.set_page_config(
     page_title = 'PREMIERE CS3',
-    page_icon = ':microscope::droplet:',
+    page_icon = '🔬💧',
     initial_sidebar_state = 'expanded',
     layout = 'wide',
 )
@@ -27,11 +27,28 @@ st.markdown("""
 # Streamlit code for the app
 st.title('Expanding microfluidics design space with generative AI')
 
+c1, c2, c3, c4, c5 = st.columns([0.5, 1, 1, 1, 1])
+c1.image('./Images/Premiere.jpeg', use_column_width=True)
+c2.image('./Images/UKRI.png')
+st.write(
+    """<style>
+    [data-testid="stHorizontalBlock"] {
+        align-items: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # Add a slider and a button on the left column
+MAPE = 0
+time_synth = 0
+fig1 = plt.figure(figsize=(20,10))
+fig2 = plt.figure(figsize=(20,10))
+
 with st.sidebar:
     input_form = st.form(key='Initial Conditions')
-    gt_value = input_form.slider('Number of original experiments', 0, 50, 400)
-    synthetic_value = input_form.slider('Number of synthetic experiments to be generated', 0, 100, 10000)
+    gt_value = input_form.slider('Number of original experiments', 50, 100, 392)
+    synthetic_value = input_form.slider('Number of synthetic experiments to be generated', 500, 1000, 10000)
     generate_button = input_form.form_submit_button('Generate synthetic experiments')
 
     if generate_button:
@@ -69,7 +86,8 @@ with st.sidebar:
         with st.spinner('Generating synthetic data...'):
         # Add a scatter plot on the right column
             fig1, fig2, MAPE, time_synth = plot_latent_space(vae, data, synthetic_value, min_ls, max_ls, nFeatures, min=0, max=1)
-MAPE = 100*MAPE
+            MAPE = 100*MAPE
+
 st.write(f'MAPE: {MAPE}%')
 st.write(f'Time to generate synthetic data: {time_synth} [s]')
 st.pyplot(fig1)
