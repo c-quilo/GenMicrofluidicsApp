@@ -3,5 +3,4 @@ scipy
 seaborn
 matplotlib
 tensorflow
-time
 random
