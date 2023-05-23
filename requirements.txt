@@ -1,4 +1,5 @@
-pip==23.1.2
+numpy
+scipy
 seaborn
 matplotlib
 tensorflow
