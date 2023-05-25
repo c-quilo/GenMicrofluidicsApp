@@ -86,7 +86,6 @@ with st.sidebar:
 
             data = scaler(trainingData, min_ls, max_ls, min, max)
 
-            print(data.shape)
             vae = VAE(encoder, decoder)
             vae.compile(optimizer=keras.optimizers.Nadam())
             vae.fit(data, epochs=epoch_value, batch_size=batch_size)
@@ -97,6 +96,7 @@ with st.sidebar:
             #fig1, fig2, MAPE, time_synth = plot_latent_space(st.session_state['vae'], st.session_state['data'], synthetic_value, st.session_state['min_ls'], st.session_state['max_ls'], st.session_state['nFeatures'], min=0, max=1)
 
             MAPE = 100*MAPE
+            del vae
 st.write(f'MAPE: {MAPE}%')
 st.write(f'Time to generate synthetic data: {time_synth} [s]')
 st.pyplot(fig1)
