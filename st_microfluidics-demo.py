@@ -54,21 +54,25 @@ with st.sidebar:
     input_form = st.form(key='Initial Conditions for training')
     gt_value = input_form.slider('Number of original experiments', 50, 100, 392)
     batch_size = input_form.slider('Batch size', 16, 128, 512)
-    epoch_value = input_form.slider('Number of epochs', 0, 100, 500)
+    epoch_value = input_form.slider('Number of epochs', 1, 100, 500)
+    train_button = input_form.form_submit_button('Train!')
+    
+    output_form = st.form(key='Data generation')
 
-    synthetic_value = input_form.slider('Number of synthetic experiments to be generated', 500, 1000, 10000)
-    generate_button = input_form.form_submit_button('Train and generate!')
+    synthetic_value = output_form.slider('Number of synthetic experiments to be generated', 500, 1000, 10000)
+    generate_button = output_form.form_submit_button('Generate!')
 
-    if generate_button:
+    if train_button:
         with st.spinner('Training...'):
 
             # Load datasets
-            nFeatures = 5
-            arrayTraining = scipy.io.loadmat('./data/matTrainingDataSet_{}inputs.mat'.format(nFeatures - 1 ))
+
+            arrayTraining = scipy.io.loadmat('./data/matTrainingDataSet_{}inputs.mat'.format(4))
             data = np.log(arrayTraining['matTrainingDataSet']['inputs'][0][0]+1)
             data_output = np.squeeze(np.log(arrayTraining['matTrainingDataSet']['output'][0][0] + 1))
             trainingData = np.hstack((data, np.expand_dims(data_output, 1)))[:gt_value, :]
-
+            if 'data' not in st.session_state:
+                st.session_state['data'] = data
             #Load VAE model
             tf.random.set_seed(42)
 
@@ -77,8 +81,11 @@ with st.sidebar:
                 xScaled = scale * x + min - xmin * scale
                 return xScaled
             min_ls = np.min(trainingData, 0)
+            if 'min_ls' not in st.session_state:
+                st.session_state['min_ls'] = min_ls
             max_ls = np.max(trainingData, 0)
-
+            if 'max_ls' not in st.session_state:
+                st.session_state['max_ls'] = max_ls
             min = 0
             max = 1
             meanData = np.mean(trainingData, 0)
@@ -91,10 +98,12 @@ with st.sidebar:
             vae.compile(optimizer=keras.optimizers.Nadam())
             vae.fit(data, epochs=epoch_value, batch_size=batch_size)
             st.write('Training done!')
-
+            if 'vae' not in st.session_state:
+                st.session_state['vae'] = vae
+    if generate_button:
         with st.spinner('Generating synthetic data...'):
-            fig1, fig2, MAPE, time_synth = plot_latent_space(vae, data, synthetic_value, min_ls, max_ls, nFeatures, min=0, max=1)
-            #fig1, fig2, MAPE, time_synth = plot_latent_space(st.session_state['vae'], st.session_state['data'], synthetic_value, st.session_state['min_ls'], st.session_state['max_ls'], st.session_state['nFeatures'], min=0, max=1)
+            #fig1, fig2, MAPE, time_synth = plot_latent_space(vae, data, synthetic_value, min_ls, max_ls, nFeatures, min=0, max=1)
+            fig1, fig2, MAPE, time_synth = plot_latent_space(st.session_state['vae'], st.session_state['data'], synthetic_value, st.session_state['min_ls'], st.session_state['max_ls'], 4, min=0, max=1)
 
             MAPE = 100*MAPE
 st.write(f'MAPE: {MAPE}%')
