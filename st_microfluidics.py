@@ -14,7 +14,6 @@ st.set_page_config(
     initial_sidebar_state = 'expanded',
     layout = 'wide',
 )
-
 # CSS to change the background color
 st.markdown("""
     <style>
@@ -23,6 +22,12 @@ st.markdown("""
     }
     </style>
     """, unsafe_allow_html=True)
+
+'''
+    [![Repo](https://badgen.net/badge/icon/GitHub?icon=github&label)](https://github.com/c-quilo/GenMicrofluidicsApp) 
+
+'''
+st.markdown("<br>",unsafe_allow_html=True)
 
 # Streamlit code for the app
 st.title('Expanding microfluidics design space with generative AI')
@@ -40,27 +45,33 @@ st.write(
     unsafe_allow_html=True
 )
 # Add a slider and a button on the left column
-MAPE = 0
-time_synth = 0
+MAPE = 'Waiting...'
+time_synth = 'Waiting...'
 fig1 = plt.figure(figsize=(20,10))
 fig2 = plt.figure(figsize=(20,10))
 
 with st.sidebar:
-    input_form = st.form(key='Initial Conditions')
+    input_form = st.form(key='Initial Conditions for training')
     gt_value = input_form.slider('Number of original experiments', 50, 100, 392)
+    batch_size = input_form.slider('Batch size', 16, 128, 512)
+    epoch_value = input_form.slider('Number of epochs', 1, 100, 500)
+
     synthetic_value = input_form.slider('Number of synthetic experiments to be generated', 500, 1000, 10000)
-    generate_button = input_form.form_submit_button('Generate synthetic experiments')
+    generate_button = input_form.form_submit_button('Train and generate!')
 
     if generate_button:
         with st.spinner('Training...'):
 
             # Load datasets
             nFeatures = 5
+            if 'nFeatures' not in st.session_state:
+                st.session_state['nFeatures'] = nFeatures
             arrayTraining = scipy.io.loadmat('./data/matTrainingDataSet_{}inputs.mat'.format(nFeatures - 1 ))
             data = np.log(arrayTraining['matTrainingDataSet']['inputs'][0][0]+1)
             data_output = np.squeeze(np.log(arrayTraining['matTrainingDataSet']['output'][0][0] + 1))
             trainingData = np.hstack((data, np.expand_dims(data_output, 1)))[:gt_value, :]
-
+            if 'data' not in st.session_state:
+                st.session_state['data'] = data
             #Load VAE model
             tf.random.set_seed(42)
 
@@ -69,9 +80,11 @@ with st.sidebar:
                 xScaled = scale * x + min - xmin * scale
                 return xScaled
             min_ls = np.min(trainingData, 0)
-            print(min_ls)
+            if 'min_ls' not in st.session_state:
+                st.session_state['min_ls'] = min_ls
             max_ls = np.max(trainingData, 0)
-            print(max_ls)
+            if 'max_ls' not in st.session_state:
+                st.session_state['max_ls'] = max_ls
             min = 0
             max = 1
             meanData = np.mean(trainingData, 0)
@@ -82,12 +95,16 @@ with st.sidebar:
             print(data.shape)
             vae = VAE(encoder, decoder)
             vae.compile(optimizer=keras.optimizers.Nadam())
-            vae.fit(data, epochs=500, batch_size=512)
-        with st.spinner('Generating synthetic data...'):
-        # Add a scatter plot on the right column
-            fig1, fig2, MAPE, time_synth = plot_latent_space(vae, data, synthetic_value, min_ls, max_ls, nFeatures, min=0, max=1)
-            MAPE = 100*MAPE
+            vae.fit(data, epochs=epoch_value, batch_size=batch_size)
+            st.write('Training done!')
+            if 'vae' not in st.session_state:
+                st.session_state['vae'] = vae
 
+        with st.spinner('Generating synthetic data...'):
+            fig1, fig2, MAPE, time_synth = plot_latent_space(vae, data, synthetic_value, min_ls, max_ls, nFeatures, min=0, max=1)
+            #fig1, fig2, MAPE, time_synth = plot_latent_space(st.session_state['vae'], st.session_state['data'], synthetic_value, st.session_state['min_ls'], st.session_state['max_ls'], st.session_state['nFeatures'], min=0, max=1)
+
+            MAPE = 100*MAPE
 st.write(f'MAPE: {MAPE}%')
 st.write(f'Time to generate synthetic data: {time_synth} [s]')
 st.pyplot(fig1)
