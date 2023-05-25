@@ -61,7 +61,6 @@ with st.sidebar:
 
     if generate_button:
         with st.spinner('Training...'):
-
             # Load datasets
             nFeatures = 5
             arrayTraining = scipy.io.loadmat('./data/matTrainingDataSet_{}inputs.mat'.format(nFeatures - 1 ))
@@ -94,13 +93,14 @@ with st.sidebar:
         with st.spinner('Generating synthetic data...'):
             fig1, fig2, MAPE, time_synth = plot_latent_space(vae, data, synthetic_value, min_ls, max_ls, nFeatures, min=0, max=1)
             #fig1, fig2, MAPE, time_synth = plot_latent_space(st.session_state['vae'], st.session_state['data'], synthetic_value, st.session_state['min_ls'], st.session_state['max_ls'], st.session_state['nFeatures'], min=0, max=1)
-
+            del vae
+            tf.keras.backend.clear_session()
             MAPE = 100*MAPE
+            
 st.write(f'MAPE: {MAPE}%')
 st.write(f'Time to generate synthetic data: {time_synth} [s]')
 st.pyplot(fig1)
 st.pyplot(fig2)
-del vae
 
 # # Call the main function to run the app
 # if __name__ == "__main__":
