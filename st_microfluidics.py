@@ -52,11 +52,11 @@ fig2 = plt.figure(figsize=(20,10))
 
 with st.sidebar:
     input_form = st.form(key='Initial Conditions for training')
-    gt_value = input_form.slider('Number of original experiments', 50, 100, 392)
-    batch_size = input_form.slider('Batch size', 16, 128, 512)
-    epoch_value = input_form.slider('Number of epochs', 0, 100, 500)
+    gt_value = input_form.slider('Number of original experiments', 50, 392, 100)
+    batch_size = input_form.slider('Batch size', 16, 512, 128)
+    epoch_value = input_form.slider('Number of epochs', 0, 500, 100)
 
-    synthetic_value = input_form.slider('Number of synthetic experiments to be generated', 500, 1000, 10000)
+    synthetic_value = input_form.slider('Number of synthetic experiments to be generated', 500, 10000, 1000)
     generate_button = input_form.form_submit_button('Train and generate!')
 
     if generate_button:
@@ -96,11 +96,11 @@ with st.sidebar:
             #fig1, fig2, MAPE, time_synth = plot_latent_space(st.session_state['vae'], st.session_state['data'], synthetic_value, st.session_state['min_ls'], st.session_state['max_ls'], st.session_state['nFeatures'], min=0, max=1)
 
             MAPE = 100*MAPE
-            del vae
 st.write(f'MAPE: {MAPE}%')
 st.write(f'Time to generate synthetic data: {time_synth} [s]')
 st.pyplot(fig1)
 st.pyplot(fig2)
+del vae
 
 # # Call the main function to run the app
 # if __name__ == "__main__":
