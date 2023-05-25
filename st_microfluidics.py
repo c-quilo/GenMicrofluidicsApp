@@ -86,6 +86,7 @@ with st.sidebar:
             data = scaler(trainingData, min_ls, max_ls, min, max)
 
             vae = VAE(encoder, decoder)
+            
             vae.compile(optimizer=keras.optimizers.Nadam())
             vae.fit(data, epochs=epoch_value, batch_size=batch_size)
             st.write('Training done!')
